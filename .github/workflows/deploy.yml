@@ -1,35 +1,60 @@
-stages:
-  - build
-  - deploy
+name: Deploy to EC2
 
+on:
+  push:
+    branches:
+      - main
 
-build:
-  stage: build
-  script:
-    - echo "Building Docker images..."
-    - docker build -t chathura601/counsilor-user-service ./services/user-service
-    - docker build -t chathura601/counsilor-booking-service ./services/booking-service
-    - docker build -t chathura601/counsilor-messaging-service ./services/messaging-service
-    - docker login -u chathura601 -p Cha12345678#
-    - docker push chathura601/counsilor-user-service
-    - docker push chathura601/counsilor-booking-service
-    - docker push chathura601/counsilor-messaging-service
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-deploy:
-  stage: deploy
-  script:
-    - echo "Deploying to EC2..."
-    
-    - scp -i counsalor-app.pem -r . ubuntu@13.218.35.225:/var/backend
-    
-    - ssh -i counsalor-app.pem ubuntu@13.218.35.225 << EOF
-        cd /var/backend/k8s
-        kubectl apply -f /booking-service/deployment.yaml
-        kubectl apply -f /messaging-service/deployment.yaml
-        kubectl apply -f /user-service/deployment.yaml
-        kubectl apply -f /booking-service/service.yaml
-        kubectl apply -f /messaging-service/service.yaml
-        kubectl apply -f /user-service/service.yaml
-        kubectl apply -f ingress.yaml
-      EOF
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Build Docker images
+      run: |
+        docker build -t chathura601/counsilor-user-service ./services/user-service
+        docker build -t chathura601/counsilor-booking-service ./services/booking-service
+        docker build -t chathura601/counsilor-messaging-service ./services/messaging-service
+
+    - name: Push Docker images
+      run: |
+        docker push chathura601/counsilor-user-service
+        docker push chathura601/counsilor-booking-service
+        docker push chathura601/counsilor-messaging-service
+
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: SSH to EC2 and Deploy Kubernetes Resources
+      env:
+        PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY }}
+      run: |
+        echo "$PRIVATE_KEY" > private_key.pem
+        chmod 600 private_key.pem
+        scp -i private_key.pem -r ./k8s ubuntu@13.218.35.225:/var/backend
+        ssh -i private_key.pem ubuntu@13.218.35.225 << EOF
+          cd /var/backend/k8s
+          kubectl apply -f /booking-service/deployment.yaml
+          kubectl apply -f /messaging-service/deployment.yaml
+          kubectl apply -f /user-service/deployment.yaml
+          kubectl apply -f /booking-service/service.yaml
+          kubectl apply -f /messaging-service/service.yaml
+          kubectl apply -f /user-service/service.yaml
+          kubectl apply -f ingress.yaml
+        EOF
