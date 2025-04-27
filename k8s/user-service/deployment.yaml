@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+        - name: user-service
+          image: user-service:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 5000
+          env:
+            - name: DB_HOST
+              value: "counsellordb.c6veeqyg6rdp.us-east-1.rds.amazonaws.com"
+            - name: DB_USER
+              value: "admin"
+            - name: DB_PASS
+              value: "Cha12345678#"
+            - name: DB_NAME
+              value: "counsellordb"

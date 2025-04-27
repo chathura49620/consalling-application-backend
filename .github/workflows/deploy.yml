@@ -1,0 +1,39 @@
+stages:
+  - build
+  - deploy
+
+
+build:
+  stage: build
+  script:
+    - echo "Building Docker images..."
+    - docker build -t chathura601/counsilor-user-service ./services/user-service
+    - docker build -t chathura601/counsilor-booking-service ./services/booking-service
+    - docker build -t chathura601/counsilor-messaging-service ./services/messaging-service
+    - docker login -u chathura601 -p Cha12345678#
+    - docker push chathura601/counsilor-user-service
+    - docker push chathura601/counsilor-booking-service
+    - docker push chathura601/counsilor-messaging-service
+  only:
+    - main 
+
+
+deploy:
+  stage: deploy
+  script:
+    - echo "Deploying to EC2..."
+    
+    - scp -i counsalor-app.pem -r . ubuntu@13.218.35.225:/var/backend
+    
+    - ssh -i counsalor-app.pem ubuntu@13.218.35.225 << EOF
+        cd /var/backend/k8s
+        kubectl apply -f /booking-service/deployment.yaml
+        kubectl apply -f /messaging-service/deployment.yaml
+        kubectl apply -f /user-service/deployment.yaml
+        kubectl apply -f /booking-service/service.yaml
+        kubectl apply -f /messaging-service/service.yaml
+        kubectl apply -f /user-service/service.yaml
+        kubectl apply -f ingress.yaml
+      EOF
+  only:
+    - main  

@@ -1,0 +1,46 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: betterwellness-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+    - host: betterwellness.local
+      http:
+        paths:
+          - path: /users
+            pathType: Prefix
+            backend:
+              service:
+                name: user-service
+                port:
+                  number: 80
+          - path: /counsellors
+            pathType: Prefix
+            backend:
+              service:
+                name: counsellor-service
+                port:
+                  number: 80
+          - path: /bookings
+            pathType: Prefix
+            backend:
+              service:
+                name: booking-service
+                port:
+                  number: 80
+          - path: /messages
+            pathType: Prefix
+            backend:
+              service:
+                name: messaging-service
+                port:
+                  number: 80
+          - path: /notifications
+            pathType: Prefix
+            backend:
+              service:
+                name: notification-service
+                port:
+                  number: 80
