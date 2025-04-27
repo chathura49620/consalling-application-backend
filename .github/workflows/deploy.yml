@@ -60,12 +60,12 @@ jobs:
         # 👇 Then run the kubectl commands
         ssh -i private_key.pem ubuntu@13.218.35.225 << EOF
           cd /var/backend/k8s
-          kubectl apply -f /booking-service/deployment.yaml
-          kubectl apply -f /messaging-service/deployment.yaml
-          kubectl apply -f /user-service/deployment.yaml
-          kubectl apply -f /booking-service/service.yaml
-          kubectl apply -f /messaging-service/service.yaml
-          kubectl apply -f /user-service/service.yaml
+          kubectl apply -f booking-service/deployment.yaml
+          kubectl apply -f messaging-service/deployment.yaml
+          kubectl apply -f user-service/deployment.yaml
+          kubectl apply -f booking-service/service.yaml
+          kubectl apply -f messaging-service/service.yaml
+          kubectl apply -f user-service/service.yaml
           kubectl apply -f ingress.yaml
         EOF
 
