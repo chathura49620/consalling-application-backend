@@ -14,8 +14,6 @@ build:
     - docker push chathura601/counsilor-user-service
     - docker push chathura601/counsilor-booking-service
     - docker push chathura601/counsilor-messaging-service
-  only:
-    - main 
 
 
 deploy:
@@ -35,5 +33,3 @@ deploy:
         kubectl apply -f /user-service/service.yaml
         kubectl apply -f ingress.yaml
       EOF
-  only:
-    - main  
