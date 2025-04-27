@@ -49,16 +49,16 @@ jobs:
         chmod 600 private_key.pem
 
         mkdir -p ~/.ssh
-        ssh-keyscan 13.218.35.225 >> ~/.ssh/known_hosts
+        ssh-keyscan 54.91.81.218 >> ~/.ssh/known_hosts
 
         # 👇 First create /var/backend on the EC2 instance
-        ssh -i private_key.pem ubuntu@13.218.35.225 "mkdir -p /var/backend"
+        ssh -i private_key.pem ubuntu@54.91.81.218 "mkdir -p /var/backend"
 
         # 👇 Now copy the ./k8s folder
-        scp -i private_key.pem -r ./k8s ubuntu@13.218.35.225:/var/backend
+        scp -i private_key.pem -r ./k8s ubuntu@54.91.81.218:/var/backend
 
         # 👇 Then run the kubectl commands
-        ssh -i private_key.pem ubuntu@13.218.35.225 << EOF
+        ssh -i private_key.pem ubuntu@54.91.81.218 << EOF
           cd /var/backend/k8s
           kubectl apply -f booking-service/deployment.yaml
           kubectl apply -f messaging-service/deployment.yaml
