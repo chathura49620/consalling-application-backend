@@ -60,12 +60,12 @@ jobs:
         # 👇 Then run the kubectl commands
         ssh -i private_key.pem ubuntu@54.91.81.218 << EOF
           cd /var/backend/k8s
-           kubectl apply -f /booking-service/deployment.yaml --validate=false
-           kubectl apply -f /messaging-service/deployment.yaml --validate=false
-           kubectl apply -f /user-service/deployment.yaml --validate=false
-           kubectl apply -f /booking-service/service.yaml --validate=false
-           kubectl apply -f /messaging-service/service.yaml --validate=false
-           kubectl apply -f /user-service/service.yaml --validate=false
+           kubectl apply -f booking-service/deployment.yaml --validate=false
+           kubectl apply -f messaging-service/deployment.yaml --validate=false
+           kubectl apply -f user-service/deployment.yaml --validate=false
+           kubectl apply -f booking-service/service.yaml --validate=false
+           kubectl apply -f messaging-service/service.yaml --validate=false
+           kubectl apply -f user-service/service.yaml --validate=false
            kubectl apply -f ingress.yaml --validate=false
         EOF
 
