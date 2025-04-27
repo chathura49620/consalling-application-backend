@@ -14,8 +14,7 @@ spec:
     spec:
       containers:
         - name: booking-service
-          image: booking-service:latest
-          imagePullPolicy: Never
+          image: chathura601/counsilor-booking-service
           ports:
             - containerPort: 5002
           env:

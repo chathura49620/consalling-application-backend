@@ -14,8 +14,7 @@ spec:
     spec:
       containers:
         - name: messaging-service
-          image: messaging-service:latest
-          imagePullPolicy: Never
+          image: chathura601/counsilor-messaging-service
           ports:
             - containerPort: 5003
           env:

@@ -47,6 +47,7 @@ jobs:
       run: |
         echo "$PRIVATE_KEY" > private_key.pem
         chmod 600 private_key.pem
+        ssh-keyscan 13.218.35.225 >> ~/.ssh/known_hosts
         scp -i private_key.pem -r ./k8s ubuntu@13.218.35.225:/var/backend
         ssh -i private_key.pem ubuntu@13.218.35.225 << EOF
           cd /var/backend/k8s
