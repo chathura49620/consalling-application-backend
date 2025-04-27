@@ -1,0 +1,106 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  MyS3Bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: 'consalling-application'
+  
+  
+  MyEC2Instance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      InstanceType: 't3.small'
+      ImageId: 'ami-xxxxxxxxxxxxxxxxx' 
+      KeyName: 'counsalor-app' 
+      SecurityGroups:
+        - !Ref MySecurityGroup
+      Tags:
+        - Key: 'Name'
+          Value: 'counsolor-app'
+  
+  MySecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: 'Allow inbound HTTP and SSH traffic'
+      SecurityGroupIngress:
+        - IpProtocol: 'tcp'
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: '0.0.0.0/0'
+        - IpProtocol: 'tcp'
+          FromPort: '80'
+          ToPort: '80'
+          CidrIp: '0.0.0.0/0'
+
+
+  MyRDSInstance:
+    Type: 'AWS::RDS::DBInstance'
+    Properties:
+      DBInstanceClass: 'db.t2.micro' 
+      Engine: 'mysql'
+      AllocatedStorage: '20'
+      DBInstanceIdentifier: 'counsellordb'
+      MasterUsername: 'admin'
+      MasterUserPassword: 'Cha12345678#'
+      DBName: 'counsellordb'
+      BackupRetentionPeriod: 7
+
+  MyCloudFront:
+    Type: 'AWS::CloudFront::Distribution'
+    Properties:
+      DistributionConfig:
+        Origins:
+          - Id: 'S3-Origin'
+            DomainName: !GetAtt MyS3Bucket.consalling-application
+            S3OriginConfig: {}
+        Enabled: 'true'
+        DefaultCacheBehavior:
+          TargetOriginId: 'S3-Origin'
+          ViewerProtocolPolicy: 'redirect-to-https'
+          AllowedMethods:
+            - 'GET'
+            - 'HEAD'
+            - 'OPTIONS'
+        PriceClass: 'PriceClass_100'
+
+  MyCognitoUserPool:
+    Type: 'AWS::Cognito::UserPool'
+    Properties:
+      UserPoolName: 'consiloruserpool'
+      AliasAttributes:
+        - 'email'
+      AutoVerifiedAttributes:
+        - 'email'
+
+ 
+  MyCognitoUserPoolClient:
+    Type: 'AWS::Cognito::UserPoolClient'
+    Properties:
+      ClientName: 'MyAppClient'
+      UserPoolId: !Ref MyCognitoUserPool
+      GenerateSecret: 'false'
+
+Outputs:
+  EC2InstancePublicIP:
+    Description: 'Public IP of the EC2 instance'
+    Value: !GetAtt MyEC2Instance.PublicIp
+
+  S3BucketURL:
+    Description: 'URL of the S3 bucket'
+    Value: !GetAtt MyS3Bucket.WebsiteURL
+
+  RDSInstanceEndpoint:
+    Description: 'RDS Database Endpoint'
+    Value: !GetAtt MyRDSInstance.Endpoint.Address
+
+  CloudFrontURL:
+    Description: 'CloudFront Distribution URL'
+    Value: !GetAtt MyCloudFront.DomainName
+
+  CognitoUserPoolId:
+    Description: 'Cognito User Pool ID'
+    Value: !Ref MyCognitoUserPool
+
+  CognitoAppClientId:
+    Description: 'Cognito App Client ID'
+    Value: !Ref MyCognitoUserPoolClient
