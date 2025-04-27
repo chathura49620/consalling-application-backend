@@ -47,8 +47,16 @@ jobs:
       run: |
         echo "$PRIVATE_KEY" > private_key.pem
         chmod 600 private_key.pem
+
+        # 👇 Create the .ssh folder
+        mkdir -p ~/.ssh
+
+        # 👇 Add the EC2 server to known_hosts
         ssh-keyscan 13.218.35.225 >> ~/.ssh/known_hosts
+
+        # Now scp and ssh will work
         scp -i private_key.pem -r ./k8s ubuntu@13.218.35.225:/var/backend
+
         ssh -i private_key.pem ubuntu@13.218.35.225 << EOF
           cd /var/backend/k8s
           kubectl apply -f /booking-service/deployment.yaml
